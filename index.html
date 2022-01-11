@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<head>
+    <style>
+        .app {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            align-content: stretch;
+            background-color: aqua;
+            height:100%;
+            flex-direction: column;
+        }
+
+        .column {
+            background-color: cornflowerblue;
+            width: 500px;
+            display:flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+          background-color: cadetblue;
+          text-align: center;
+          width: 100%;
+        }
+
+        .swipey-container {
+          width: 300px;
+          height: 300px;
+        }
+
+        .swipey {
+          position:absolute;
+        }
+
+        .swipey img {
+          width: 300px;
+          height: 300px;
+          overflow: hidden;
+        }
+
+        #notification {
+          animation-duration: 1s;
+          transition: all .2s;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">GRAVLR</div>
+        <div class="column">
+          <div id="notification"></div>
+          <div class="swipey-container">
+            <div class="swipey">
+              <img src="/gravelpics/50-150mm-round-river-gravel.jpg" />
+            </div>
+            <div class="swipey">
+              <img src="/gravelpics/3663602727651_01c.jpg" />
+            </div>
+            <div class="swipey">
+              <img src="/gravelpics/gravel-and-limstone1.jpg" />
+            </div>
+          </div>
+        </div>
+
+    </div>
+
+    <script>
+
+      const matchProbability = .21;
+
+      const n = document.getElementById("notification");
+
+      let swipeys = document.getElementsByClassName("swipey");
+      for (let i = 0; i < swipeys.length; i++) {
+        const swipey = swipeys[i];
+        swipey.style['z-index'] = i;
+        swipey.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          const startX = e.clientX;
+          const startY = e.clientY;
+          swipey.style.transition = "";
+
+          const mousemove = (e) => {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            swipey.style.transform = `translate(${dx}px, ${dy}px)`;
+          };
+
+          document.addEventListener("mousemove", mousemove);
+          document.addEventListener("mouseup", (e) => {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            const d = Math.sqrt(dx*dx + dy*dy); // squared distance
+            console.log(d);
+
+            console.log("removing event listener");
+            document.removeEventListener("mousemove", mousemove);
+
+            // Chose a direction.
+            if (Math.abs(dx) > 200) {
+              swipey.style.transition = "";
+              swipey.style.transform = '';
+              if (dx > 0 && Math.random() < matchProbability) {
+                n.textContent = "It's a match!!";
+              } else {
+                n.textContent = "";
+              }
+              swipey.style['z-index'] = -1;
+              for (let s of swipeys) {
+                s.style['z-index'] = Number(s.style['z-index'])+1;
+              }
+            } else {
+              swipey.style.transition = "all .1s";
+              swipey.style.transform = '';
+            }
+          })
+        });
+      }
+    </script>
+</body>
